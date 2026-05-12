@@ -15,4 +15,17 @@ return [
             include: [__DIR__ . '/Self'],
         ),
     ),
+    new SuiteConfig(
+        name: 'Lifecycle/Unit',
+        location: new FinderConfig(
+            include: [__DIR__ . '/Unit'],
+            exclude: [__DIR__ . '/Unit/Fixture'],
+        ),
+    ),
+    new SuiteConfig(
+        name: 'Lifecycle/Feature',
+        location: new FinderConfig(
+            include: [__DIR__ . '/Feature'],
+        ),
+    ),
 ];
