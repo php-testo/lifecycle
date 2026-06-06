@@ -10,7 +10,7 @@ use Testo\Core\Value\Status;
 use Testo\Lifecycle\Internal\LifecycleInterceptor;
 use Testo\Test;
 use Testo\Testing\Attribute\TestingSuite;
-use Testo\Testing\Traits\TestRunner;
+use Testo\Testing\Helper\TestRunner;
 use Tests\Lifecycle\Stub\ClassLevelTestStub;
 
 /**
@@ -19,7 +19,7 @@ use Tests\Lifecycle\Stub\ClassLevelTestStub;
  * test plugin, while leaving them in place as lifecycle hooks at run time.
  *
  * Each feature test runs the whole testo pipeline (file/case discovery + run) against
- * {@see ClassLevelTestStub} via {@see TestRunner}, then inspects the result.
+ * {@see ClassLevelTestStub} via {@see \Testo\Testing\Helper\TestRunner}, then inspects the result.
  */
 #[Test]
 #[Covers(LifecycleInterceptor::class)]
@@ -54,7 +54,7 @@ final class LifecycleLocatorFeatureTest
     }
 
     /**
-     * {@see TestRunner::runTest()} throws when no matching test result is found.
+     * {@see \Testo\Testing\Helper\TestRunner::runTest()} throws when no matching test result is found.
      * (It tries to format the missing method into the exception message by
      * invoking it as a callable, which itself fails for non-static methods;
      * we therefore catch any {@see \Throwable} rather than only the intended
