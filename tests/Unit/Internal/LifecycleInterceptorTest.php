@@ -9,6 +9,7 @@ use Testo\Codecov\Covers;
 use Testo\Core\Value\TestType;
 use Testo\Lifecycle\Internal\LifecycleInterceptor;
 use Testo\Test;
+use Testo\Tokenizer\DefinitionLocator;
 use Testo\Tokenizer\Reflection\FileDefinitions;
 use Testo\Tokenizer\Reflection\TokenizedFile;
 use Tests\Lifecycle\Unit\Fixture\ClassWithLifecycleMethods;
@@ -124,10 +125,8 @@ final class LifecycleInterceptorTest
     private function makeDefinitionWithAllPublicMethodsAsTests(string $fixture, string $classFqn): FileDefinitions
     {
         $path = $this->fixturesDir . $fixture;
-        $definition = new FileDefinitions(new TokenizedFile(
-            file: new \SplFileInfo($path),
-            path: $path,
-        ));
+        $file = new TokenizedFile(file: new \SplFileInfo($path), path: $path);
+        $definition = new FileDefinitions($file, classes: DefinitionLocator::getClasses($file));
 
         $reflection = $definition->classes[$classFqn] ?? throw new \RuntimeException(
             "Fixture class {$classFqn} not found in {$path}",
