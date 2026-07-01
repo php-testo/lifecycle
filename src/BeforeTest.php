@@ -10,11 +10,11 @@ use Testo\Pipeline\Attribute\FallbackInterceptor;
 use Testo\Pipeline\Attribute\Interceptable;
 
 /**
- * Marks a method to be executed before each test run.
+ * Marks a method or function to be executed before each test run.
  *
  * @api
  */
-#[\Attribute(\Attribute::TARGET_METHOD)]
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION)]
 #[FallbackInterceptor(LifecycleInterceptor::class)]
 final readonly class BeforeTest implements Interceptable, LifecycleAttribute
 {

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Lifecycle\Self;
 
 use Testo\Assert;
+use Testo\Codecov\Covers;
 use Testo\Lifecycle\BeforeTest;
+use Testo\Lifecycle\Internal\LifecycleInterceptor;
 use Testo\Test;
 
 /**
@@ -13,6 +15,9 @@ use Testo\Test;
  *
  * Higher priority methods are executed first.
  */
+#[Test]
+#[Covers(BeforeTest::class)]
+#[Covers(LifecycleInterceptor::class)]
 final class Priority
 {
     /** @var list<string> */
@@ -36,16 +41,16 @@ final class Priority
         $this->beforeLog[] = 'low';
     }
 
-    #[Test]
+    /**
+     * Higher-priority {@see BeforeTest} methods run before lower-priority ones,
+     * so the log is ordered high → default → low.
+     */
     public function beforeMethodsRunInPriorityOrder(): void
     {
-        // Higher priority runs first
-        // Find the indexes
         $highIndex = \array_search('high', $this->beforeLog, true);
         $defaultIndex = \array_search('default', $this->beforeLog, true);
         $lowIndex = \array_search('low', $this->beforeLog, true);
 
-        // Verify order: high < default < low (by index)
         Assert::true($highIndex < $defaultIndex);
         Assert::true($defaultIndex < $lowIndex);
     }

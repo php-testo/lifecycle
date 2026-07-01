@@ -122,6 +122,50 @@ final class LifecycleInterceptorTest
         Assert::same($result, $definition->cases);
     }
 
+    /**
+     * A function-based test case (one whose {@see \Testo\Core\Definition\CaseDefinition::$reflection}
+     * is null, i.e. a file of top-level functions) must have its lifecycle-annotated functions
+     * stripped from the test set exactly like the methods of a class-based case.
+     */
+    public function removesLifecycleFunctionsFromTestSet(): void
+    {
+        $definition = $this->makeDefinitionWithAllFunctionsAsTests('FunctionsWithLifecycle.php');
+
+        # Sanity: pre-filter, all six functions are present
+        Assert::array($definition->cases->getCases()[0]->tests->getTests())
+            ->hasCount(6)
+            ->hasKeys('fnPlainTest', 'fnAnotherPlainTest', 'fnSetUp', 'fnTearDown', 'fnSetUpClass', 'fnTearDownClass');
+
+        $result = $this->interceptor->locateTestCases(
+            $definition,
+            static fn(FileDefinitions $f) => $f->cases,
+        );
+
+        $tests = $result->getCases()[0]->tests->getTests();
+
+        Assert::array($tests)
+            ->hasCount(2)
+            ->hasKeys('fnPlainTest', 'fnAnotherPlainTest')
+            ->doesNotHaveKeys('fnSetUp', 'fnTearDown', 'fnSetUpClass', 'fnTearDownClass');
+    }
+
+    /**
+     * A function-based case without lifecycle attributes must pass through untouched.
+     */
+    public function passesThroughWhenNoLifecycleFunctionsPresent(): void
+    {
+        $definition = $this->makeDefinitionWithAllFunctionsAsTests('FunctionsWithoutLifecycle.php');
+
+        $result = $this->interceptor->locateTestCases(
+            $definition,
+            static fn(FileDefinitions $f) => $f->cases,
+        );
+
+        Assert::array($result->getCases()[0]->tests->getTests())
+            ->hasCount(2)
+            ->hasKeys('fnAlpha', 'fnBeta');
+    }
+
     private function makeDefinitionWithAllPublicMethodsAsTests(string $fixture, string $classFqn): FileDefinitions
     {
         $path = $this->fixturesDir . $fixture;
@@ -135,6 +179,26 @@ final class LifecycleInterceptorTest
         $case = $definition->cases->define($reflection, $definition, type: TestType::Test);
         foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
             $case->tests->define($method);
+        }
+
+        return $definition;
+    }
+
+    /**
+     * Build a function-based {@see FileDefinitions} (null case reflection) registering every
+     * top-level function of the fixture as a test — the pre-filter state the lifecycle locator
+     * is expected to prune.
+     */
+    private function makeDefinitionWithAllFunctionsAsTests(string $fixture): FileDefinitions
+    {
+        $path = $this->fixturesDir . $fixture;
+        $file = new TokenizedFile(file: new \SplFileInfo($path), path: $path);
+        $functions = DefinitionLocator::getFunctions($file);
+        $definition = new FileDefinitions($file, functions: $functions);
+
+        $case = $definition->cases->define(null, $definition, type: TestType::Test);
+        foreach ($functions as $function) {
+            $case->tests->define($function);
         }
 
         return $definition;

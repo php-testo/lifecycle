@@ -39,6 +39,10 @@ final class ClassLevelTestWithLifecycle
     #[AfterTest]
     public function tearDown(): void {}
 
+    /**
+     * Only this method is scheduled as a test, and its {@see BeforeTest} hook runs once:
+     * if lifecycle methods had leaked into the test set, {@see $setUpCalls} would exceed 1.
+     */
     public function theOnlyTest(): void
     {
         Assert::same($this->setUpCalls, 1);

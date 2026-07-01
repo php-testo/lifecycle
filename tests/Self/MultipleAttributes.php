@@ -5,13 +5,19 @@ declare(strict_types=1);
 namespace Tests\Lifecycle\Self;
 
 use Testo\Assert;
+use Testo\Codecov\Covers;
 use Testo\Lifecycle\AfterTest;
 use Testo\Lifecycle\BeforeTest;
+use Testo\Lifecycle\Internal\LifecycleInterceptor;
 use Testo\Test;
 
 /**
- * Self-tests for multiple Before/After methods on a single class.
+ * Self-tests for multiple {@see BeforeTest}/{@see AfterTest} methods declared on a single class.
  */
+#[Test]
+#[Covers(BeforeTest::class)]
+#[Covers(AfterTest::class)]
+#[Covers(LifecycleInterceptor::class)]
 final class MultipleAttributes
 {
     /** @var list<string> */
@@ -41,10 +47,11 @@ final class MultipleAttributes
         $this->log[] = 'after-2';
     }
 
-    #[Test]
-    public function multipleBeforeMethodsAreCalled(): void
+    /**
+     * Every {@see BeforeTest} method declared on the class runs before the test body.
+     */
+    public function allBeforeMethodsAreCalled(): void
     {
-        // Both before methods should have been called
         Assert::true(\in_array('before-1', $this->log, true));
         Assert::true(\in_array('before-2', $this->log, true));
     }

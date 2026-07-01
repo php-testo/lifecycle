@@ -10,13 +10,13 @@ use Testo\Pipeline\Attribute\FallbackInterceptor;
 use Testo\Pipeline\Attribute\Interceptable;
 
 /**
- * Marks a method to be executed once after all tests in the test case.
+ * Marks a method or function to be executed once after all tests in the test case.
  *
  * Typically used for cleanup operations after all tests have completed.
  *
  * @api
  */
-#[\Attribute(\Attribute::TARGET_METHOD)]
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION)]
 #[FallbackInterceptor(LifecycleInterceptor::class)]
 final readonly class AfterClass implements Interceptable, LifecycleAttribute
 {
